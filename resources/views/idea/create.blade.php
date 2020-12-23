@@ -5,6 +5,10 @@
 @section('bg_image','submit-idea-page full-height')
 
 @section('content')
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+
+
   @php $agent = new Jenssegers\Agent\Agent(); @endphp
 
 <style type="text/css">
@@ -41,6 +45,12 @@
     float: right;
     margin-right: 10px;
 }
+
+.form-group .dropdown{
+    border: 1px solid #8000ff !important;
+    border-radius: 20px;
+    color: #495057;
+}
 </style>
 <script src="https://kit.fontawesome.com/dfea93c091.js" crossorigin="anonymous"></script>
 
@@ -70,6 +80,46 @@
                 <!-- /.form-group col-12 -->
             </div>
             <!-- /.row -->
+
+
+            <div class="row">
+                <div class="form-group col-12 col-sm-4 col-md-3 col-lg-3">
+                    {!! Form::label('team-name', 'Team Name', ['class' => 'font-weight-bold custom-form-control-label']) !!}
+                    {!! Form::text('team_name', null, ['class' => 'form-control custom-form-control', 'id'=>'team-name', 'maxlength' => '120']) !!}
+                    <h6 class="pull-right" id="count_message"></h6>
+                </div>
+                <!-- /.form-group col-6 -->
+                <div class="form-group col-12 col-sm-8 col-md-6 col-lg-6">
+                    {!! Form::label('team-members', 'Team Members', ['class' => 'font-weight-bold custom-form-control-label']) !!}
+                    {{-- {!! Form::text('team_members', null, ['class' => 'form-control custom-form-control', 'required', 'id'=>'team-members',]) !!}
+                    <h6 class="pull-right" id="count_message"></h6> --}}
+
+                    <select class="category idea_member related-post form-control custom-form-control" id="team_members" name="team_members[]" multiple>
+                        @foreach ($users as $user)
+                            <option value="{{$user->id}}">{{$user->first_name}}</option>
+                        @endforeach
+                        
+                    </select>
+                </div>
+                <!-- /.form-group col-6 -->
+            </div>
+            <!-- /.row -->
+
+            {{-- <div class="row">
+                <div class="form-group">
+                    <label>Category :</label>
+                    <select class="category idea_member related-post form-control" name="category[]" multiple>
+                        <option value="1">Laravel</option>
+                        <option value="2">Jquery</option>
+                        <option value="3">React</option>
+                        <option value="4">Jquery ui</option>
+                        <option value="5">Android</option>
+                        <option value="6">React Native</option>
+                        <option value="7">Vue js</option>
+                        <option value="8">Bootstrap 4</option>
+                    </select>
+                </div>
+            </div> --}}
 
             <div class="row">
                 <div class="form-group col-12">
@@ -146,10 +196,15 @@
     </div>
     <!-- /.row -->
 
+    
+
 @endsection
 
 
 @section('customJS')
+
+{{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script> --}}
+
     @component('layouts.tinymce')
         @slot('editor')
             #description
@@ -179,8 +234,6 @@ $(document).ready(function(){
             
             let new_val = $(this).val();
             $("#elevator_pitch").val(new_val.split(' ').slice(0, maxTextarea-1).join(" ")+" ");
-
-           
         }
 
 
@@ -387,6 +440,11 @@ $(document).on("change","#upload_form", function(event) {
 
        return sizeInMB;
     }
+});
+
+// Select-2 for team members
+$(document).ready(function() {
+    $('.idea_member').select2();
 });
 </script>
 @endsection

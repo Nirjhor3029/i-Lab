@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Idea;
 use App\Upload;
+use App\User;
 use Carbon\Carbon;
 use App\Authorizable;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 // use File;
+
 
 class IdeaController extends Controller
 {
@@ -90,7 +92,8 @@ class IdeaController extends Controller
      */
     public function create()
     {
-        return view('idea.create');
+        $users = User::all();
+        return view('idea.create',compact('users'));
     }
 
     /**
@@ -104,18 +107,22 @@ class IdeaController extends Controller
 
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
-        // return $request;
+
 
         $validator = Validator::make($request->all(), [
             'topic' => 'required|max:60',
             'title' => 'required|max:100',
             'elevator_pitch' => 'required|max:1536',
             'description' => 'present|nullable',
+            "team_members" => "required_if:team_name,!=,''",
+            "team_name" => "required_if:team_members,!=,''"
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
+
+         dd ($request);
 
         switch ($request->get('submit_button')) {
 
