@@ -61,7 +61,7 @@ class AccountDashboardController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -130,7 +130,6 @@ class AccountDashboardController extends Controller
     }
 
 
-
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -170,7 +169,7 @@ class AccountDashboardController extends Controller
     /**
      * Update My Profile Form (Post Request)
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -239,7 +238,7 @@ class AccountDashboardController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      *
      * @return string
      */

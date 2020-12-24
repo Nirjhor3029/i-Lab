@@ -463,6 +463,7 @@
                         // modal of likes: 
                         user_likes: [],
                         total_likes: 0,
+                        team_name: '',
 					};
 				},
 				methods: {

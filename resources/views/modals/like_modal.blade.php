@@ -10,7 +10,17 @@
         <!-- Modal content-->
         <div class="modal-content like_modal">
             <div class="modal-header">
-                <h4 class="modal-title"> All Likes <span class="badge badge-pill badge-primary">@{{user_likes.length}}</span> </h4>
+                <h4 class="modal-title"> 
+                    <span v-if="team_name == null">
+                        All Likes
+                        <span class="badge badge-pill badge-primary">@{{user_likes.length}}</span> 
+                    </span>
+                    <span v-else>
+                        @{{user_likes.length}} members of @{{team_name}}-Team
+                    </span>
+                        
+                    
+                </h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
 

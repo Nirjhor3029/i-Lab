@@ -70,9 +70,10 @@ Route::prefix('secure/dashboard')->name('dashboard.')->middleware([
 	});
 
 	Route::get('/recent-idea-published', static function () {
-		$recentIdeas = Idea::with('user', 'comments', 'likes', 'short_listed_idea')->whereIsActive(1)->whereIsSubmitted(1)->orderByDesc('submitted_at')
-// 			->whereDate('submitted_at', '>', Carbon::now()->subDays(30))
+		$recentIdeas = Idea::with('user', 'comments', 'likes', 'short_listed_idea','idea_teams','likes.user')->whereIsActive(1)->whereIsSubmitted(1)->orderByDesc('submitted_at')
+			// >whereDate('submitted_at', '>', Carbon::now()->subDays(30))
 			->get();
+
 
 		return response()->json(['ideas' => $recentIdeas]);
 	});
@@ -95,15 +96,35 @@ Route::prefix('secure/dashboard')->name('dashboard.')->middleware([
 		return response()->json(['user_likes' => $user_likes,'total_likes' => $index+1]);
 	});
 
+	Route::get('/all-members-by-team/{ideaId}', static function ($ideaId) {
+
+
+		$Idea = Idea::with('user','idea_teams')->where('id',$ideaId)->first();
+		$teamMembers = explode(',',$Idea->idea_teams->team_members);
+		$users = \App\User::whereIn('id',$teamMembers)->get();
+
+//		return response()->json(['members_ids' => $Idea]);
+		$user_likes = [];
+		foreach ($users as $index => $user) {
+			$user_likes [$index] = [
+				"name" => $user->first_name. " " .  $user->last_name,
+				"photo" => $user->profile_picture,
+				"submitted_at" => $Idea->updated_at,
+			];
+		}
+
+		return response()->json(['user_likes' => $user_likes,'total_likes' => $index+1,"team_name" => $Idea->idea_teams->team_name]);
+	});
+
 	Route::get('/all-ideas-published', static function () {
-		$publishedIdeas = Idea::with('user', 'comments', 'likes')->orderByDesc('submitted_at')->whereIsActive(1)->whereIsSubmitted(1)->get();
+		$publishedIdeas = Idea::with('user', 'comments', 'likes','idea_teams')->orderByDesc('submitted_at')->whereIsActive(1)->whereIsSubmitted(1)->get();
 
 		return response()->json(['ideas' => $publishedIdeas]);
 	});
 
 
 	Route::get('/all-ideas', static function () {
-		$publishedIdeas = Idea::with('user', 'comments', 'likes')->orderByDesc('submitted_at')->get();
+		$publishedIdeas = Idea::with('user', 'comments', 'likes','idea_teams')->orderByDesc('submitted_at')->get();
 
 		return response()->json(['ideas' => $publishedIdeas]);
 	});
@@ -135,7 +156,8 @@ Route::prefix('secure/dashboard')->name('dashboard.')->middleware([
 		$featuredIdeas = Idea::with(
 			'user',
 			'comments',
-			'likes'
+			'likes',
+			'idea_teams'
 		)->orderByDesc('submitted_at')->whereIsActive(1)->whereIsSubmitted(1)->whereIsFeatured(1)->get();
 
 		return response()->json(['ideas' => $featuredIdeas]);
@@ -145,7 +167,8 @@ Route::prefix('secure/dashboard')->name('dashboard.')->middleware([
 		$featuredIdeas = Idea::with(
 			'user',
 			'comments',
-			'likes'
+			'likes',
+			'idea_teams'
 		)->orderByDesc('submitted_at')->whereIsActive(1)->whereIsSubmitted(1)->whereIsPiloted(1)->get();
 
 		return response()->json(['ideas' => $featuredIdeas]);
@@ -229,9 +252,9 @@ Route::prefix('secure/admin')->name('admin.')->middleware([
 	Route::get('/', 'AdminDashboard\AdminDashboardController@adminDashboard')->name('admin-dashboard');
 	Route::get('/recentMontIdeas', 'AdminDashboard\AdminDashboardController@recentMontIdeas')->name('admin-recentMontIdeas');
 	Route::get('/previousMontIdeas', 'AdminDashboard\AdminDashboardController@previousMontIdeas')->name('admin-previousMontIdeas');
-	
+
 	Route::get('/printAllIdeas', 'AdminDashboard\AdminDashboardController@printAllIdeas')->name('admin-printAllIdeas');
-	
+
 	Route::get('/featuredIdeas', 'AdminDashboard\AdminDashboardController@featuredIdeas')->name('admin-featuredIdeas');
 	Route::get('/pilotedIdeas', 'AdminDashboard\AdminDashboardController@pilotedIdeas')->name('admin-pilotedIdeas');
 	Route::get('/allIdeas', 'AdminDashboard\AdminDashboardController@allIdeas')->name('admin-allIdeas');
@@ -246,7 +269,7 @@ Route::prefix('secure/admin')->name('admin.')->middleware([
 	Route::post('/make_non_shortlist', 'ShortListedIdeaController@makeNonShortlist')->name('admin-makeNonShortlist');
 
 
-	//  API for Vue 
+	//  API for Vue
 	Route::get('/all-ideas-published', static function () {
 		$publishedIdeas = Idea::with('user', 'comments', 'likes')->orderByDesc('submitted_at')->whereIsActive(1)->whereIsSubmitted(1)->get();
 		return response()->json(['ideas' => $publishedIdeas]);

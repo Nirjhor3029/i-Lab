@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Idea;
+use App\IdeaTeam;
 use App\Upload;
 use App\User;
 use Carbon\Carbon;
@@ -108,6 +109,8 @@ class IdeaController extends Controller
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
 
+        $teamMembers = [];
+        $userId = Auth::user()->id;
 
         $validator = Validator::make($request->all(), [
             'topic' => 'required|max:60',
@@ -122,7 +125,10 @@ class IdeaController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-         dd ($request);
+        //dd ($request);
+        //exit;
+
+
 
         switch ($request->get('submit_button')) {
 
@@ -161,6 +167,25 @@ class IdeaController extends Controller
                 $idea->save();
 
                 break;
+        }
+
+        // add Team-members
+        //dd ($request);
+        if(!is_null($request->team_members)){
+            $teamMembers = $request->team_members;
+            // array_push($teamMembers,$userId);
+            $teamMembers = implode(",",$teamMembers);
+
+            $team = new IdeaTeam();
+            $team->idea_id = $idea->id;
+            $team->user_id = $userId;
+            $team->team_name = $request->team_name;
+            $team->team_members = $teamMembers;
+            $team->save();
+
+            //d($team);
+        }else{
+            echo "No Team members" ;
         }
 
         if ($idea->is_active) {

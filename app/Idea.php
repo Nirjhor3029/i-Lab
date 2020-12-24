@@ -91,4 +91,11 @@ class Idea extends Model
     {
         return $this->hasMany(IdeaFeedback::class, 'idea_id', 'id');
     }
+
+
+    // for idea-team
+    public function idea_teams()
+    {
+        return $this->hasOne(IdeaTeam::class, 'idea_id', 'id');
+    }
 }

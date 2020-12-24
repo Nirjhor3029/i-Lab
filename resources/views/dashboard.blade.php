@@ -6,6 +6,12 @@
 
 @section('content')
 
+<style>
+  .recent-ideas-idea-team{
+    color: #0c26ba;
+  }
+</style>
+
 
 
   @php $agent = new Jenssegers\Agent\Agent(); @endphp
@@ -120,6 +126,7 @@
                 <li class="media hr pb-0 mb-2 mt-2">
 
 
+                  {{-- Profile photo start --}}
                   <div v-if="idea.user.profile_picture == undefined">
                     <a :href="'/secure/dashboard/idea/' + idea.uuid">
                       <img src="{{asset('/img/profile-picture-placeholder.svg')}}" class="mr-2 rounded-circle" alt="Profile Picture" height="60">
@@ -131,17 +138,30 @@
                       <img :src="'{{asset('/')}}' + idea.user.profile_picture" class="mr-2 rounded-circle" alt="Profile Picture" height="60">
                     </a>
                   </div>
+                  {{-- Profile photo end--}}
 
+
+                  {{-- Single Idea text-body --}}
                   <div class="media-body recent-ideas-idea-description">
                     <h5 class="recent-ideas-idea-title" style="color: #FFAD4D;">
                       <a :href="'/secure/dashboard/idea/' + idea.uuid">@{{ idea.title }}<span class="text-muted">|</span> @{{ idea.topic }}</a>
                       <span v-if="idea.is_piloted == 1" class="badge piloted">P</span>
                     </h5>
 
+                    {{-- User name --}}
                     <div class="row">
                       <div class="col-12 col-sm-8 col-md-8 col-lg-8">
-                        <p class="mb-1 font-weight-bold recent-ideas-idea-author" style="color: #555555;">@{{ idea.user.first_name }}, @{{ idea.user.designation
-                          }}</p>
+                        <p v-if="idea.idea_teams == null" class="mb-1 font-weight-bold recent-ideas-idea-author" style="color: #555555;">
+                          @{{ idea.user.first_name }}, @{{ idea.user.designation}} 
+                        </p>
+                        <p v-else>
+                          Team
+                          <a  href="javascript:void(0)" @click="teamMembers(idea.id)" class="mb-1 font-weight-bold recent-ideas-idea-team">
+                            @{{ idea.idea_teams.team_name }}
+                          </a>
+                        </p>
+                        
+                        
                       </div>
                       <!-- /.col-12 col-sm-8 col-md-8 col-lg-8 -->
 
@@ -489,6 +509,7 @@
           // modal of likes: 
           user_likes: [],
           total_likes: 0,
+          team_name: '',
         };
       },
       methods: {
@@ -496,17 +517,14 @@
           axios.get('/secure/dashboard/recent-idea-published').then((response) => {
             this.ideas = response.data.ideas;
             this.loading = false;
-            //console.log(response.data);
+            console.log(response.data);
           }).catch((err) => {
             console.log(err.response);
           });
         },
         like(ideaId) {
-
-
           axios.post(`/secure/dashboard/submit-like`, { idea_id: ideaId }).then((response) => {
             this.getIdea();
-
             //console.log(response.data);
           }).catch((err) => {
             console.log(err);
@@ -539,12 +557,27 @@
             // this.loading = false;
             this.user_likes =  response.data.user_likes ; 
             this.total_likes =  response.data.total_likes ; 
+            this.team_name =  null ; 
             let element = this.$el.querySelector('#likeModal');
             $(element).modal('show');
           }).catch((err) => {
             console.log(err.response);
           });
-
+        },
+        teamMembers(ideaId){
+          // console.log("likedBy -> ideaId", ideaId);
+          axios.get('/secure/dashboard/all-members-by-team/'+ideaId).then((response) => {
+            // console.log("likedBy -> response.data", response.data.user_likes);
+            // this.loading = false;
+            console.log(response.data);
+            this.user_likes =  response.data.user_likes ; 
+            this.total_likes =  response.data.total_likes ; 
+            this.team_name =  response.data.team_name ; 
+            let element = this.$el.querySelector('#likeModal');
+            $(element).modal('show');
+          }).catch((err) => {
+            console.log(err.response);
+          });
         }
       },
       mounted() {
