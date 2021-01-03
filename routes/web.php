@@ -44,6 +44,7 @@ Route::prefix('secure/dashboard')->name('dashboard.')->middleware([
 		Route::get('/', 'AccountDashboardController@index')->name('index');
 		Route::get('/how-it-works', 'AccountDashboardController@howItWorks')->name('how-it-works');
 		Route::get('/all-idea', 'AccountDashboardController@allIdeas')->name('all-idea');
+		Route::get('/team-idea', 'AccountDashboardController@teamIdeas')->name('team-idea');
 		Route::get('/featured-ideas', 'AccountDashboardController@featuredIdeas')->name('featured-ideas');
 		Route::get('/piloted-ideas', 'AccountDashboardController@pilotedIdeas')->name('piloted-ideas');
 
@@ -64,6 +65,8 @@ Route::prefix('secure/dashboard')->name('dashboard.')->middleware([
 	Route::post('upload-file-delete', 'UploadController@delete_uploads_files')->name('upload-file-delete');
 
 	Route::post('broadcast-new-idea', 'IdeaController@broadcastChannel');
+	// Ajax routes for team name check
+	Route::get('team-name-check/{name}', 'IdeaController@teamNameChecked')->name("teamNameChecked");
 
 	Route::get('/individual-idea-published-comments', static function () {
 		return Idea::with('comments', 'comments.user', 'likes', 'ratings', 'avgRating')->whereUuid(request()->get('ideaUuid'))->first();
@@ -118,6 +121,12 @@ Route::prefix('secure/dashboard')->name('dashboard.')->middleware([
 
 	Route::get('/all-ideas-published', static function () {
 		$publishedIdeas = Idea::with('user', 'comments', 'likes','idea_teams')->orderByDesc('submitted_at')->whereIsActive(1)->whereIsSubmitted(1)->get();
+
+		return response()->json(['ideas' => $publishedIdeas]);
+	});
+
+	Route::get('/team-ideas-published', static function () {
+		$publishedIdeas = Idea::with('user', 'comments', 'likes','idea_teams')->orderByDesc('submitted_at')->whereIsActive(1)->whereIsSubmitted(1)->has('idea_teams')->get();
 
 		return response()->json(['ideas' => $publishedIdeas]);
 	});

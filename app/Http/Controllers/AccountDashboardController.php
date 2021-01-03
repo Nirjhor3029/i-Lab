@@ -115,6 +115,23 @@ class AccountDashboardController extends Controller
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
+    public function teamIdeas()
+    {
+        $users = User::orderBy('first_name')->get();
+        $name = [];
+
+        foreach ($users as $user) {
+            $obj['uuid'] = $user->id;
+            $obj['name'] = $user->full_name;
+
+            array_push($name, $obj);
+        }
+        return view('team-ideas')->withUsers($name);
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function featuredIdeas()
     {
         $users = User::orderBy('first_name')->get();

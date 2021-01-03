@@ -93,6 +93,11 @@
                                     All Ideas
                                 </span>
                             </a>
+                            <a href="{{ route('dashboard.team-idea') }}" class="dropdown-item">
+                                <span @if (request()->is('secure/dashboard/team-idea')) class="border-bottom-custom" @endif>
+                                    Team Ideas
+                                </span>
+                            </a>
                             
                         </div>
                     </li>

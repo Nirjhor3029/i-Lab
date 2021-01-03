@@ -54,6 +54,13 @@ class IdeaController extends Controller
         return view('idea.index', compact('submittedIdeas', 'draftedIdeasCount', 'featuredIdeasCount', 'activeIdeaCard'));
     }
 
+    // Ajax routes-for team name checked
+    public function teamNameChecked($name)
+    {
+        $team = IdeaTeam::where('team_name',strtolower($name))->count();
+        return $team;
+    }
+
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */

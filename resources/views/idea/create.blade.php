@@ -85,8 +85,8 @@
             <div class="row">
                 <div class="form-group col-12 col-sm-4 col-md-3 col-lg-3">
                     {!! Form::label('team-name', 'Team Name', ['class' => 'font-weight-bold custom-form-control-label']) !!}
-                    {!! Form::text('team_name', null, ['class' => 'form-control custom-form-control', 'id'=>'team-name', 'maxlength' => '120']) !!}
-                    <h6 class="pull-right" id="count_message"></h6>
+                    {!! Form::text('team_name', null, ['class' => 'form-control custom-form-control', 'required','id'=>'team-name', 'maxlength' => '120']) !!}
+                    <h6 class="pull-right" id="team_message" style="color: rgb(243, 63, 31)"></h6>
                 </div>
                 <!-- /.form-group col-6 -->
                 <div class="form-group col-12 col-sm-8 col-md-6 col-lg-6">
@@ -272,113 +272,133 @@ $(document).ready(function(){
     var total_files_size        = 0;
     var limitLeft               = 0;
 
+    
+    // Unique team name check
+    $(document).on("keyup","#team-name", function(event) {
+        let team_name = $("#team-name").val();
+        let url = "{{route('dashboard.teamNameChecked','team_name')}}";
+        url = url.replace('team_name', team_name);
+        $.ajax({
+            url: url,
+            success: function(result){
+                // console.log("changed: "+result);
+                if(result!=0){
+                    $("#team-name").val("");
+                    $("#team_message").html(team_name+"-team:  already taken");
+                }else{
+                    $("#team_message").html("");
+                }
+                
+            }
+        });
+    });
+
+
     $('#upload_form').on('click', function(){
         $(progress_bar_id +" .progress-bar").css("width", "0%");
         $(progress_bar_id + " .status").text("0%");
     });
 
     $('#uploadLimit').html(max_file_size+'MB');
-//on form submit
-$(document).on("change","#upload_form", function(event) {
-// console.log($('input[type=file]')[x-1].files[0]);
+    //on form submit
+    $(document).on("change","#upload_form", function(event) {
+        // console.log($('input[type=file]')[x-1].files[0]);
 
-    if($('input[type=file]')[x].files.length){
+        if($('input[type=file]')[x].files.length){
 
-        let fileSize = getFileSize($('input[type=file]')[x].files[0].size);
-        limitLeft = max_file_size - fileSize;
-        let proceed = true; //set proceed flag
-        let error = []; //errors
+            let fileSize = getFileSize($('input[type=file]')[x].files[0].size);
+            limitLeft = max_file_size - fileSize;
+            let proceed = true; //set proceed flag
+            let error = []; //errors
 
-        if (limitLeft >= 0) {
+            if (limitLeft >= 0) {
 
-        $('#progress-wrp').css({'visibility':'visible'});
-        event.preventDefault();
-        var formData = new FormData();
-        formData.append('image', $('input[type=file]')[x].files[0]);
-        formData.append('idea_id', $('#idea_id').val());
-        formData.append('topic', $('#topic').val());
-        formData.append('title', $('#title').val());
-        formData.append('elevator_pitch', $('#elevator_pitch').val());
-        formData.append('description', $('#description').val());
-        formData.append('size', fileSize);
+            $('#progress-wrp').css({'visibility':'visible'});
+            event.preventDefault();
+            var formData = new FormData();
+            formData.append('image', $('input[type=file]')[x].files[0]);
+            formData.append('idea_id', $('#idea_id').val());
+            formData.append('topic', $('#topic').val());
+            formData.append('title', $('#title').val());
+            formData.append('elevator_pitch', $('#elevator_pitch').val());
+            formData.append('description', $('#description').val());
+            formData.append('size', fileSize);
 
-        //reset progressbar
-        $(progress_bar_id +" .progress-bar").css("width", "0%");
-        $(progress_bar_id + " .status").text("0%");
+            //reset progressbar
+            $(progress_bar_id +" .progress-bar").css("width", "0%");
+            $(progress_bar_id + " .status").text("0%");
 
-        if(!window.File && window.FileReader && window.FileList && window.Blob){ //if browser doesn't supports File API
-            error.push("Your browser does not support new File API! Please upgrade."); //push error text
-        }else{
-        //if everything looks good, proceed with jQuery Ajax
-        if(proceed){
+            if(!window.File && window.FileReader && window.FileList && window.Blob){ //if browser doesn't supports File API
+                error.push("Your browser does not support new File API! Please upgrade."); //push error text
+            }else{
+            //if everything looks good, proceed with jQuery Ajax
+            if(proceed){
 
-            $.ajax({
+                $.ajax({
 
-                url : "{{route('dashboard.file-upload')}}",
-                type: "POST",
-                data : formData,
-                headers: {
-                    'X-CSRF-TOKEN':  $("[name=_token]").val()
-                },
-                contentType: false,
-                cache: false,
-                processData:false,
-                xhr: function(){
-                    //upload Progress
-                    var xhr = $.ajaxSettings.xhr();
-                    if (xhr.upload) {
-                        xhr.upload.addEventListener('progress', function(event) {
-                            var percent = 0;
-                            var position = event.loaded || event.position;
-                            var total = event.total;
-                            if (event.lengthComputable) {
-                                percent = Math.ceil(position / total * 100);
-                                // console.log(percent);
-                            }
-                            //update progressbar
-                            $(progress_bar_id + " .status").text(percent +"%");
-                            $(progress_bar_id +" .progress-bar").css("width", + (percent * 2) +"px");
-                            // $(progress_bar_id +" .status").css("background-color","#fff");
-                        }, true);
-                    }
-                    return xhr;
-                },
-                mimeType:"multipart/form-data"
-                }).done(function(res){ //
+                    url : "{{route('dashboard.file-upload')}}",
+                    type: "POST",
+                    data : formData,
+                    headers: {
+                        'X-CSRF-TOKEN':  $("[name=_token]").val()
+                    },
+                    contentType: false,
+                    cache: false,
+                    processData:false,
+                    xhr: function(){
+                        //upload Progress
+                        var xhr = $.ajaxSettings.xhr();
+                        if (xhr.upload) {
+                            xhr.upload.addEventListener('progress', function(event) {
+                                var percent = 0;
+                                var position = event.loaded || event.position;
+                                var total = event.total;
+                                if (event.lengthComputable) {
+                                    percent = Math.ceil(position / total * 100);
+                                    // console.log(percent);
+                                }
+                                //update progressbar
+                                $(progress_bar_id + " .status").text(percent +"%");
+                                $(progress_bar_id +" .progress-bar").css("width", + (percent * 2) +"px");
+                                // $(progress_bar_id +" .status").css("background-color","#fff");
+                            }, true);
+                        }
+                        return xhr;
+                    },
+                    mimeType:"multipart/form-data"
+                    }).done(function(res){ //
 
-                    res = JSON.parse(res);
-                    upload_id.push(res.id)
-                    $("#uploaded_file_id").val(upload_id);
+                        res = JSON.parse(res);
+                        upload_id.push(res.id)
+                        $("#uploaded_file_id").val(upload_id);
 
-                    $("#idea_id").val(res.idea_id);
+                        $("#idea_id").val(res.idea_id);
 
-                    $(uploaded).append(uploadedFileShow(res));
-                });
+                        $(uploaded).append(uploadedFileShow(res));
+                    });
+
+                }
+                }
+
+                total_files_size += fileSize;
+                max_file_size -= fileSize;
+                $('#uploadLimit').html('');
+                $('#uploadLimit').html(max_file_size.toFixed(2)+'MB');
+            }else{
+                error.push( "File is larger than limit left:  "+max_file_size.toFixed(2)+" MB, Try smaller file!"); //push error text
+                proceed = false; //set proceed flag to false
+            }
+
+            $(result_output).html(""); //reset output
+            $(error).each(function(i){ //output any error to output element
+                $(result_output).append('<div class="error" style="color: red">'+error[i]+"</div>");
+            });
+            }
+            else{
+                console.log("Error: File not Found");
 
             }
-            }
-
-            total_files_size += fileSize;
-            max_file_size -= fileSize;
-            $('#uploadLimit').html('');
-            $('#uploadLimit').html(max_file_size.toFixed(2)+'MB');
-        }else{
-            error.push( "File is larger than limit left:  "+max_file_size.toFixed(2)+" MB, Try smaller file!"); //push error text
-            proceed = false; //set proceed flag to false
-        }
-
-        $(result_output).html(""); //reset output
-        $(error).each(function(i){ //output any error to output element
-            $(result_output).append('<div class="error" style="color: red">'+error[i]+"</div>");
-        });
-        }
-		else{
-			console.log("Error: File not Found");
-
-		}
-    }
-
-	);
+    });
 
 
 
