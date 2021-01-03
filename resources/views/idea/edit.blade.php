@@ -37,6 +37,12 @@
     float: right;
     margin-right: 10px;
     }
+
+    .form-group .dropdown{
+        border: 1px solid #8000ff !important;
+        border-radius: 20px;
+        color: #495057;
+    }
 </style>
 
 @php $agent = new Jenssegers\Agent\Agent(); @endphp
@@ -67,6 +73,37 @@
                 <!-- /.form-group col-12 -->
             </div>
             <!-- /.row -->
+
+            @if ($team_members)
+            <div class="row">
+                <div class="form-group col-12 col-sm-4 col-md-3 col-lg-3">
+                    {!! Form::label('team-name', 'Team Name', ['class' => 'font-weight-bold custom-form-control-label']) !!}
+                    {!! Form::text('team_name',  $idea->idea_teams->team_name, ['class' => 'form-control custom-form-control', 'required','id'=>'team-name', 'maxlength' => '120','autocomplete'=>'off']) !!}
+                    <h6 class="pull-right" id="team_message" style="color: rgb(243, 63, 31)"></h6>
+                </div>
+                <!-- /.form-group col-6 -->
+                <div class="form-group col-12 col-sm-8 col-md-6 col-lg-6">
+                    {!! Form::label('team-members', 'Team Members', ['class' => 'font-weight-bold custom-form-control-label']) !!}
+                    {{-- {!! Form::text('team_members', null, ['class' => 'form-control custom-form-control', 'required', 'id'=>'team-members',]) !!}
+                    <h6 class="pull-right" id="count_message"></h6> --}}
+
+                    <select class="category idea_member related-post form-control custom-form-control" id="team_members" name="team_members[]" multiple>
+                        @foreach ($users as $user)
+                            <option value="{{$user->id}}" {{(in_array($user->id,$team_members))? "selected": ""}}>{{$user->first_name}}</option>
+                        @endforeach
+                        
+                    </select>
+                </div>
+                <!-- /.form-group col-6 -->
+            </div>
+            <!-- /.row -->
+            @else
+                
+            @endif
+            
+
+
+
 
             <div class="row">
                 <div class="form-group col-12">
@@ -120,8 +157,8 @@
 
             <div class="row">
                 <div class="form-group col-12 col-sm-12 col-md-12 col-lg-12 @if (!$agent->isMobile()) text-right @endif">
-                    {!! Form::submit('Draft', ['class' => 'btn btn-purple custom-form-control-btn mr-3', 'name' => 'submit_button']) !!}
-                    {!! Form::submit('Publish', ['class' => 'btn btn-success custom-form-control-btn', 'name' => 'submit_button']) !!}
+                    {!! Form::submit('Draft', ['class' => 'btn btn-purple custom-form-control-btn mr-3 submit_btn', 'name' => 'submit_button']) !!}
+                    {!! Form::submit('Publish', ['class' => 'btn btn-success custom-form-control-btn submit_btn', 'name' => 'submit_button']) !!}
                 </div>
                 <!-- /.form-group col-12 -->
             </div>
@@ -279,6 +316,28 @@
         var total_files_allowed     = 3; //Number files allowed to upload
         var total_files_size        = 0;
         var limitLeft               = 0;
+
+        // Unique team name check
+        $(document).on("keyup","#team-name", function(event) {
+            let team_name = $("#team-name").val();
+            let url = "{{route('dashboard.teamNameChecked','team_name')}}";
+            url = url.replace('team_name', team_name);
+            $.ajax({
+                url: url,
+                success: function(result){
+                    // console.log("changed: "+result);
+                    if(result!=0){
+                        // $("#team-name").val("");
+                        $("#team_message").html(team_name+"-team:  already taken");
+                        $(".submit_btn").attr("disabled", true);
+                    }else{
+                        $("#team_message").html("");
+                        $(".submit_btn").attr("disabled", false);
+                    }
+                    
+                }
+            });
+        });
 
     $('#upload_form').on('click', function(){
         $(progress_bar_id +" .progress-bar").css("width", "0%");

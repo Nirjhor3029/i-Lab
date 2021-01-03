@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+
 // use File;
 
 
@@ -57,7 +58,7 @@ class IdeaController extends Controller
     // Ajax routes-for team name checked
     public function teamNameChecked($name)
     {
-        $team = IdeaTeam::where('team_name',strtolower($name))->count();
+        $team = IdeaTeam::where('team_name', strtolower($name))->count();
         return $team;
     }
 
@@ -101,13 +102,13 @@ class IdeaController extends Controller
     public function create()
     {
         $users = User::all();
-        return view('idea.create',compact('users'));
+        return view('idea.create', compact('users'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -134,7 +135,6 @@ class IdeaController extends Controller
 
         //dd ($request);
         //exit;
-
 
 
         switch ($request->get('submit_button')) {
@@ -178,10 +178,10 @@ class IdeaController extends Controller
 
         // add Team-members
         //dd ($request);
-        if(!is_null($request->team_members)){
+        if (!is_null($request->team_members)) {
             $teamMembers = $request->team_members;
-            // array_push($teamMembers,$userId);
-            $teamMembers = implode(",",$teamMembers);
+            (in_array($userId, $teamMembers)) ? null : array_push($teamMembers, $userId);
+            $teamMembers = implode(",", $teamMembers);
 
             $team = new IdeaTeam();
             $team->idea_id = $idea->id;
@@ -191,8 +191,8 @@ class IdeaController extends Controller
             $team->save();
 
             //d($team);
-        }else{
-            echo "No Team members" ;
+        } else {
+            echo "No Team members";
         }
 
         if ($idea->is_active) {
@@ -222,7 +222,7 @@ class IdeaController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Idea  $idea
+     * @param  \App\Idea $idea
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -230,17 +230,28 @@ class IdeaController extends Controller
 
     public function show(Idea $idea)
     {
+        //return "show";
+        $userId = auth()->id();
         if ($idea->user_id == auth()->id()) {
             $idea->is_read = true;
             $idea->update();
         }
-        $idea = Idea::whereId($idea->id)->with('short_listed_idea', 'idea_feedback')->first();
+        $idea = Idea::whereId($idea->id)->with('short_listed_idea', 'idea_feedback','idea_teams')->first();
         $idea_feedback = IdeaFeedback::where([
             ['idea_id', '=', $idea->id],
             ['user_id', '=', auth()->user()->id],
         ])->first();
         $idea->idea_feedback = $idea_feedback;
-        // return $idea;
+
+        if(!is_null($idea->idea_teams)){
+            $team_members_ids = explode(',',$idea->idea_teams);
+            $team_members_ids = array_diff($team_members_ids,array($userId));
+            $team_members = User::whereIn('id',$team_members_ids)->get();
+            $idea->idea_teams->team_members = $team_members ;
+        }
+
+
+//         return $idea;
         return view('idea.show', compact('idea'));
     }
 
@@ -253,7 +264,7 @@ class IdeaController extends Controller
      */
     public function edit($idea)
     {
-        $idea = Idea::whereUserId(auth()->id())->whereUuid($idea)->firstOrFail();
+        $idea = Idea::whereUserId(auth()->id())->whereUuid($idea)->with('idea_teams')->firstOrFail();
         $fileSizeCount = Upload::whereIdeaId($idea->id)->sum('size');
 
         if ($idea->user_id != Idea::whereUuid(request()->segment(4))->first()->user_id) {
@@ -262,8 +273,16 @@ class IdeaController extends Controller
             return redirect()->back();
         }
 
+        $users = User::all(); //needs for user-list in team member field
         if ($idea->user_id == auth()->id()) {
-            return view('idea.edit', compact('idea', 'fileSizeCount'));
+            if (!is_null($idea->idea_teams)) {
+                $team_members = explode(',', $idea->idea_teams->team_members);
+            } else {
+                $team_members = 0;
+            }
+
+            // return $team_members;
+            return view('idea.edit', compact('idea', 'fileSizeCount', 'users', 'team_members'));
         }
 
         laraflash()->message('Whoops! Sorry, but you are not allowed to perform the action requested.')->danger();
@@ -274,13 +293,14 @@ class IdeaController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @param $idea
      *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $idea)
     {
+        $userId = auth()->id();
         $idea = Idea::with(['uploads', 'comments', 'short_listed_idea'])->whereUuid($idea)->whereUserId(auth()->id())->firstOrFail();
 
         if ($idea->user_id != Idea::whereUuid(request()->segment(4))->first()->user_id) {
@@ -348,6 +368,26 @@ class IdeaController extends Controller
                 break;
         }
 
+
+        // add Team-members
+        //dd ($request);
+        if (!is_null($request->team_members)) {
+            $teamMembers = $request->team_members;
+            (in_array($userId, $teamMembers)) ? null : array_push($teamMembers, $userId);
+            $teamMembers = implode(",", $teamMembers);
+
+            $team = IdeaTeam::where('idea_id',$idea->id)->first();
+            $team->idea_id = $idea->id;
+            $team->user_id = $userId;
+            $team->team_name = $request->team_name;
+            $team->team_members = $teamMembers;
+            $team->save();
+
+            //d($team);
+        } else {
+            echo "No Team members";
+        }
+
         if ($idea->is_active) {
             laraflash()->message($idea->title . ' was updated with Submitted Status on ' . Carbon::now()->format('F j, Y, g:i A'))->success();
 
@@ -364,7 +404,7 @@ class IdeaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Idea  $idea
+     * @param  \App\Idea $idea
      *
      * @return \Illuminate\Http\RedirectResponse
      * @throws \Exception

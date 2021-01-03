@@ -85,7 +85,7 @@
             <div class="row">
                 <div class="form-group col-12 col-sm-4 col-md-3 col-lg-3">
                     {!! Form::label('team-name', 'Team Name', ['class' => 'font-weight-bold custom-form-control-label']) !!}
-                    {!! Form::text('team_name', null, ['class' => 'form-control custom-form-control', 'required','id'=>'team-name', 'maxlength' => '120']) !!}
+                    {!! Form::text('team_name', null, ['class' => 'form-control custom-form-control','id'=>'team-name', 'maxlength' => '120','autocomplete'=>'off']) !!}
                     <h6 class="pull-right" id="team_message" style="color: rgb(243, 63, 31)"></h6>
                 </div>
                 <!-- /.form-group col-6 -->
@@ -105,21 +105,7 @@
             </div>
             <!-- /.row -->
 
-            {{-- <div class="row">
-                <div class="form-group">
-                    <label>Category :</label>
-                    <select class="category idea_member related-post form-control" name="category[]" multiple>
-                        <option value="1">Laravel</option>
-                        <option value="2">Jquery</option>
-                        <option value="3">React</option>
-                        <option value="4">Jquery ui</option>
-                        <option value="5">Android</option>
-                        <option value="6">React Native</option>
-                        <option value="7">Vue js</option>
-                        <option value="8">Bootstrap 4</option>
-                    </select>
-                </div>
-            </div> --}}
+            
 
             <div class="row">
                 <div class="form-group col-12">
@@ -176,7 +162,7 @@
             <div class="row">
                 <div class="form-group col-12 col-sm-12 col-md-12 col-lg-12 @if (!$agent->isMobile()) text-right @endif">
                     {!! Form::submit('Draft', ['class' => 'btn btn-purple custom-form-control-btn mr-3', 'name' => 'submit_button' ]) !!}
-                     {!! Form::submit('Publish', ['class' => 'btn btn-success custom-form-control-btn', 'name' => 'submit_button']) !!}
+                     {!! Form::submit('Publish', ['class' => 'btn btn-success custom-form-control-btn', 'name' => 'submit_button','id'=>'submit_btn']) !!}
                 </div>
                 <!-- /.form-group col-12 -->
             </div>
@@ -283,10 +269,12 @@ $(document).ready(function(){
             success: function(result){
                 // console.log("changed: "+result);
                 if(result!=0){
-                    $("#team-name").val("");
+                    // $("#team-name").val("");
                     $("#team_message").html(team_name+"-team:  already taken");
+                    $("#submit_btn").attr("disabled", true);
                 }else{
                     $("#team_message").html("");
+                    $("#submit_btn").attr("disabled", false);
                 }
                 
             }

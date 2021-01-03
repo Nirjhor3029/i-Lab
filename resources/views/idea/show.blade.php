@@ -206,24 +206,69 @@
 
 					@if ($idea->is_submitted)
                     <div class="idea-submitted-by mb-4">
-                        <div class="mb-2">
-                            <strong>Idea Submitted By:</strong>
-                        </div>
-                        <!-- /.mb-2 -->
-
-                        <div class="media">
-                            @if($idea->user->profile_picture != null)
-                                <img src="{{ asset($idea->user->profile_picture) }}" class="mr-2 rounded-circle" height="50" alt="Profile Picture">
-                            @else
-                                <img src="{{asset('img/profile-picture-placeholder.svg')}}" class="mr-2 rounded-circle" height="50" alt="Profile Picture">
-                            @endif
-                            <div class="media-body">
-                                <strong class="mt-0">{{ $idea->user->first_name }} {{ $idea->user->last_name }}</strong>
-                                <p class="mb-0">{{ $idea->user->designation }}</p>
-                                <!-- /.mb-0 -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                    <strong>Idea Submitted By:</strong>
+                                </div>
+                                <!-- /.mb-2 -->
+                            </div>
+                            <div class="col-md-8">
+                                @if (!is_null($idea->idea_teams))
+                                    <div class="mb-2">
+                                        <strong>Team Members:</strong>
+                                    </div>
+                                    <!-- /.mb-2 -->
+                                @endif
                             </div>
                         </div>
-					</div>
+                        
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="media">
+                                    @if($idea->user->profile_picture != null)
+                                        <img src="{{ asset($idea->user->profile_picture) }}" class="mr-2 rounded-circle" height="50" alt="Profile Picture">
+                                    @else
+                                        <img src="{{asset('img/profile-picture-placeholder.svg')}}" class="mr-2 rounded-circle" height="50" alt="Profile Picture">
+                                    @endif
+                                    <div class="media-body">
+                                        <strong class="mt-0">{{ $idea->user->first_name }} {{ $idea->user->last_name }}</strong>
+                                        <p class="mb-0">{{ $idea->user->designation }}</p>
+                                        <!-- /.mb-0 -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                @if (!is_null($idea->idea_teams))
+                                    <div class="row">
+                                        @foreach ($idea->idea_teams->team_members as $user)
+                                            <div class="col-md-6 mb-2">
+                                                <div class="media">
+                                                    @if($user->profile_picture != null)
+                                                        <img src="{{ asset($user->profile_picture) }}" class="mr-2 rounded-circle" height="50" alt="Profile Picture">
+                                                    @else
+                                                        <img src="{{asset('img/profile-picture-placeholder.svg')}}" class="mr-2 rounded-circle" height="50" alt="Profile Picture">
+                                                    @endif
+                                                    <div class="media-body">
+                                                        <strong class="mt-0">{{ $user->first_name }} {{ $user->last_name }}</strong>
+                                                        <p class="mb-0">{{ $user->designation }}</p>
+                                                        <!-- /.mb-0 -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                                
+                                
+                            </div>
+                        </div>
+                        
+
+                    </div>
+                    
+                    
 
                     <!-- /.idea-submitted-by -->
                 </div>
