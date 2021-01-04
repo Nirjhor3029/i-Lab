@@ -5,8 +5,10 @@ namespace App\Http\Controllers\AdminDashboard;
 use App\Charts\IdeaChart;
 use App\Http\Controllers\Controller;
 use App\Idea;
+use App\IdeaTeam;
 use App\Role;
 use App\ShortListedIdea;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -139,5 +141,29 @@ class AdminDashboardController extends Controller
         $idea->is_piloted = 0;
         $idea->save();
         return response(['idea', $idea], 201);
+    }
+
+    // Team methods
+    public function allTeams()
+    {
+        $teams = IdeaTeam::all();
+        $publishedIdeasOnlyTeams = Idea::with('user','idea_teams')->orderByDesc('submitted_at')->whereIsActive(1)->whereIsSubmitted(1)->has('idea_teams')->get();
+        foreach($publishedIdeasOnlyTeams as $key => $idea){
+            $team_member_ids = explode(',',$idea->idea_teams->team_members);
+            $team_members = User::whereIn('id',$team_member_ids)->get();
+            $publishedIdeasOnlyTeams[$key]->idea_teams->team_members = $team_members;
+//            return $idea->idea_teams->team_members;
+        }
+//        return $publishedIdeasOnlyTeams;
+        $all_team = IdeaTeam::orderByDesc('created_at')->count();
+        return view('admin-dashboard.all_teams', compact('all_team','publishedIdeasOnlyTeams'));
+    }
+    public function allTeamIdeas() //no use
+    {
+        $teams = IdeaTeam::all();
+        $idea_name = "All Ideas";
+        $ideasCount = Idea::orderByDesc('created_at')->count();
+        $all_idea_published = Idea::orderByDesc('created_at')->whereIsActive(1)->whereIsSubmitted(1)->count();
+        return view('admin-dashboard.all_team_ideas', compact('ideasCount', 'idea_name', 'all_idea_published'));
     }
 }

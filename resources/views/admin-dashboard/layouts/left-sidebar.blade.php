@@ -1,4 +1,4 @@
-<div class="admin-dashboard-left-sidebar">
+<div class="admin-dashboard-left-sidebar" style="height: 100%; min-height: 100vh;">
     <div class="admin-information-in-sidebar text-center mb-3">
         <div class="mb-3">
 			<a href="{{ route('admin.admin-dashboard') }}">
@@ -24,11 +24,11 @@
             </li>
             <!-- /.left-side-navbar-li -->
 
-            
+            {{-- Ideas --}}
             <li  class="left-side-navbar-li">
                 <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"> <img src="{{ asset('img/admin/history-icon.svg') }}" alt=""> Ideas</a>
                 <ul class="collapse list-unstyled left-side-navbar-ul left_bar_ul 
-                    @if (request()->is('secure/admin/allIdeas') || request()->is('secure/admin/recentMontIdeas') || request()->is('secure/admin/previousMontIdeas') ) show @endif " id="pageSubmenu" >
+                    @if (request()->is('secure/admin/allIdeas') || request()->is('secure/admin/recentMontIdeas') ||request()->is('secure/admin/allTeams') || request()->is('secure/admin/previousMontIdeas') ) show @endif " id="pageSubmenu" >
                     <li class="left-side-navbar-li">
                         <a href="{{ route('admin.admin-allIdeas') }}"  class="left_bar_li_a @if (request()->is('secure/admin/allIdeas')) active-navbar-item @endif"><img src="{{ asset('img/admin/history-icon.svg') }}" alt=""> All Ideas</a>
                     </li>
@@ -42,10 +42,15 @@
                     <li class="left-side-navbar-li">
                         <a href="{{ route('admin.admin-printAllIdeas') }}"  class="left_bar_li_a @if (request()->is('secure/admin/printAllIdeas')) active-navbar-item @endif"><img src="{{ asset('img/admin/history-icon.svg') }}" alt=""> Print All Ideas</a>
                     </li>
+
+                    <li class="left-side-navbar-li">
+                        <a href="{{ route('admin.admin-allTeams') }}"  class="left_bar_li_a @if (request()->is('secure/admin/allTeams')) active-navbar-item @endif"><img src="{{ asset('img/admin/history-icon.svg') }}" alt=""> All Teams</a>
+                    </li>
                 </ul>
             </li>
             <!-- /.left-side-navbar-li -->
 
+            {{-- Listed Ideas --}}
             <li  class="left-side-navbar-li">
                 <a href="#pageSubmenu_OI" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"> <img src="{{ asset('img/admin/all-ideas-icon.svg') }}" alt="">listed Ideas</a>
                 <ul class="collapse list-unstyled left-side-navbar-ul left_bar_ul
@@ -62,6 +67,8 @@
                     
                 </ul>
             </li>
+
+            {{-- Users --}}
             <!-- /.left-side-navbar-li -->
             <li  class="left-side-navbar-li">
                 <a href="#pageSubmenu_user" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"> <img src="{{ asset('img/admin/user.svg') }}" alt="">Users</a>
@@ -80,6 +87,22 @@
             </li>
             <!-- /.left-side-navbar-li -->
 
+            {{-- Teams --}}
+            {{-- <li  class="left-side-navbar-li">
+                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"> <img src="{{ asset('img/admin/history-icon.svg') }}" alt=""> Teams</a>
+                <ul class="collapse list-unstyled left-side-navbar-ul left_bar_ul 
+                    @if (request()->is('secure/admin/allTeams') || request()->is('secure/admin/allTeamIdeas') || request()->is('secure/admin/allTeamIdeas') ) show @endif " id="pageSubmenu" >
+                    <li class="left-side-navbar-li">
+                        <a href="{{ route('admin.admin-allTeams') }}"  class="left_bar_li_a @if (request()->is('secure/admin/allTeams')) active-navbar-item @endif"><img src="{{ asset('img/admin/history-icon.svg') }}" alt=""> All Teams</a>
+                    </li>
+                    <li class="left-side-navbar-li">
+                        <a href="{{ route('admin.admin-allTeamIdeas') }}"  class="left_bar_li_a @if (request()->is('secure/admin/allTeamIdeas')) active-navbar-item @endif"><img src="{{ asset('img/admin/history-icon.svg') }}" alt=""> All Teams Idea</a>
+                    </li>
+                </ul>
+            </li> --}}
+            <!-- /.left-side-navbar-li -->
+
+            {{-- seetings --}}
             <li class="left-side-navbar-li">
                 <a href="{{ route('admin.settings') }}"><img src="{{ asset('img/admin/wheel.svg') }}" alt=""> Settings </a>
             </li>

@@ -448,6 +448,8 @@
                             </div>
                         </li>
                     </ul>
+
+                    
                     <div class="input-group" style="border-bottom: none;">
                         <input type="text" v-model="newComment" @keyup.enter="commentId == '' ? submit() : updateComment()" class="form-control" @enter placeholder="Write a comment..." aria-describedby="button-addon2" required>
                         <input type="hidden" v-model="commentId" class="form-control" placeholder="Write a comment..." aria-describedby="button-addon2">

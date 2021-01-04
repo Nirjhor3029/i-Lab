@@ -277,6 +277,9 @@ Route::prefix('secure/admin')->name('admin.')->middleware([
 	Route::post('/make_shortlist', 'ShortListedIdeaController@makeShortlist')->name('admin-makeShortlist');
 	Route::post('/make_non_shortlist', 'ShortListedIdeaController@makeNonShortlist')->name('admin-makeNonShortlist');
 
+	Route::get('/allTeams', 'AdminDashboard\AdminDashboardController@allTeams')->name('admin-allTeams');
+	Route::get('/allTeamIdeas', 'AdminDashboard\AdminDashboardController@allTeamIdeas')->name('admin-allTeamIdeas');
+
 
 	//  API for Vue
 	Route::get('/all-ideas-published', static function () {
