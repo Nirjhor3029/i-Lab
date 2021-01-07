@@ -156,8 +156,9 @@
                         </p>
                         <p v-else>
                           Team
+
                           <a  href="javascript:void(0)" @click="teamMembers(idea.id)" class="mb-1 font-weight-bold recent-ideas-idea-team">
-                            @{{ idea.idea_teams.team_name }}
+                            @{{ idea.idea_teams.team_name }} ( @{{ idea.idea_teams.team_members.split(',').length }} )
                           </a>
                         </p>
                         
